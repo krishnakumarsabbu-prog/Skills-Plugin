@@ -1,0 +1,104 @@
+"use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.DashboardViewProvider = void 0;
+const vscode = __importStar(require("vscode"));
+class DashboardViewProvider {
+    constructor(context) {
+        this.context = context;
+    }
+    resolveWebviewView(webviewView) {
+        webviewView.webview.options = {
+            enableScripts: true,
+        };
+        webviewView.webview.html = this.getHtml(webviewView.webview);
+        webviewView.webview.onDidReceiveMessage((message) => {
+            if (message.command === 'openDashboard') {
+                vscode.commands.executeCommand('dctCopilotSkills.openDashboard');
+            }
+        });
+    }
+    getHtml(webview) {
+        const nonce = getNonce();
+        return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'nonce-${nonce}';">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      padding: 12px;
+      font-family: var(--vscode-font-family);
+      color: var(--vscode-foreground);
+    }
+    button {
+      width: 100%;
+      padding: 8px 12px;
+      background: var(--vscode-button-background);
+      color: var(--vscode-button-foreground);
+      border: none;
+      border-radius: 2px;
+      cursor: pointer;
+      font-size: 13px;
+    }
+    button:hover {
+      background: var(--vscode-button-hoverBackground);
+    }
+  </style>
+</head>
+<body>
+  <button id="openBtn">Open Skill Dashboard</button>
+  <script nonce="${nonce}">
+    const vscode = acquireVsCodeApi();
+    document.getElementById('openBtn').addEventListener('click', () => {
+      vscode.postMessage({ command: 'openDashboard' });
+    });
+  </script>
+</body>
+</html>`;
+    }
+}
+exports.DashboardViewProvider = DashboardViewProvider;
+DashboardViewProvider.viewId = 'dctCopilotSkills.dashboard';
+function getNonce() {
+    let text = '';
+    const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    for (let i = 0; i < 32; i++) {
+        text += possible.charAt(Math.floor(Math.random() * possible.length));
+    }
+    return text;
+}
+//# sourceMappingURL=dashboardView.js.map

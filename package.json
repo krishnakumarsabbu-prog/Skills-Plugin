@@ -1,0 +1,48 @@
+{
+  "name": "dct-copilot-skills",
+  "displayName": "DCT-Copilot Skills",
+  "description": "DCT Copilot Skills extension for VS Code",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": ["Other"],
+  "activationEvents": [],
+  "main": "./out/extension.js",
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "dctCopilotSkills",
+          "title": "DCT Skills",
+          "icon": "media/icon.svg"
+        }
+      ]
+    },
+    "views": {
+      "dctCopilotSkills": [
+        {
+          "id": "dctCopilotSkills.dashboard",
+          "name": "Skill Dashboard"
+        }
+      ]
+    },
+    "commands": [
+      {
+        "command": "dctCopilotSkills.openDashboard",
+        "title": "Open Skill Dashboard"
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "build": "tsc -p ./"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.85.0",
+    "@types/node": "^20.0.0",
+    "typescript": "^5.3.0"
+  }
+}
