@@ -37,21 +37,42 @@ exports.openDashboard = openDashboard;
 const vscode = __importStar(require("vscode"));
 function openDashboard(context) {
     const panel = vscode.window.createWebviewPanel('dctCopilotSkills', 'DCT Copilot Skills', vscode.ViewColumn.One, {
-        enableScripts: false,
+        enableScripts: true,
+        localResourceRoots: [
+            vscode.Uri.joinPath(context.extensionUri, 'out', 'webview'),
+        ],
     });
-    panel.webview.html = getWebviewContent();
+    panel.webview.html = getWebviewContent(panel.webview, context.extensionUri);
+    panel.webview.onDidReceiveMessage((message) => {
+        // handle messages from webview here
+    }, undefined, context.subscriptions);
 }
-function getWebviewContent() {
+function getWebviewContent(webview, extensionUri) {
+    const webviewDist = vscode.Uri.joinPath(extensionUri, 'out', 'webview');
+    const scriptUri = webview.asWebviewUri(vscode.Uri.joinPath(webviewDist, 'assets', 'index.js'));
+    const styleUri = webview.asWebviewUri(vscode.Uri.joinPath(webviewDist, 'assets', 'index.css'));
+    const nonce = getNonce();
     return `<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${webview.cspSource} 'unsafe-inline'; script-src 'nonce-${nonce}'; img-src ${webview.cspSource} https: data:; font-src ${webview.cspSource};">
+  <link rel="stylesheet" href="${styleUri}" />
   <title>DCT Copilot Skills</title>
 </head>
 <body>
-  <p>Loading...</p>
+  <div id="root"></div>
+  <script nonce="${nonce}" src="${scriptUri}"></script>
 </body>
 </html>`;
+}
+function getNonce() {
+    let text = '';
+    const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    for (let i = 0; i < 32; i++) {
+        text += possible.charAt(Math.floor(Math.random() * possible.length));
+    }
+    return text;
 }
 //# sourceMappingURL=openDashboard.js.map

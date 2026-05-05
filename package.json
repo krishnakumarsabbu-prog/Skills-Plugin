@@ -35,10 +35,11 @@
     ]
   },
   "scripts": {
-    "vscode:prepublish": "npm run compile",
+    "vscode:prepublish": "npm run compile && npm run build:webview",
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
-    "build": "tsc -p ./"
+    "build": "tsc -p ./ && npm run build:webview",
+    "build:webview": "cd webview && npm install && npm run build"
   },
   "devDependencies": {
     "@types/vscode": "^1.85.0",
