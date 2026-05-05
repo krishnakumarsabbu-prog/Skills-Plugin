@@ -13,22 +13,185 @@ html, body, #root {
 }
 
 body {
-  background-color: #0f1117;
+  background-color: #080b14;
   color: #e2e8f0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   -webkit-font-smoothing: antialiased;
 }
 
-::-webkit-scrollbar {
-  width: 6px;
+/* Scrollbar */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #1e2840; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #2d3a5a; }
+
+/* Sidebar */
+.sidebar {
+  background: linear-gradient(180deg, #0d1224 0%, #090c1a 100%);
+  border-right: 1px solid rgba(255, 255, 255, 0.04);
 }
-::-webkit-scrollbar-track {
-  background: #1a1d27;
+
+/* Logo gradient */
+.logo-gradient {
+  background: linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%);
 }
-::-webkit-scrollbar-thumb {
-  background: #2d3748;
-  border-radius: 3px;
+
+.shadow-glow {
+  box-shadow: 0 0 20px rgba(59, 130, 246, 0.4);
 }
-::-webkit-scrollbar-thumb:hover {
-  background: #4a5568;
+
+/* Gradient text */
+.gradient-text {
+  background: linear-gradient(90deg, #3b82f6, #06b6d4);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Glass card */
+.glass-card {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(10px);
+}
+
+/* Nav item active */
+.nav-item {
+  background: transparent;
+}
+
+.nav-active {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(6, 182, 212, 0.1) 100%);
+  color: #93c5fd;
+  border: 1px solid rgba(59, 130, 246, 0.2);
+}
+
+/* Promo card */
+.promo-card {
+  background: linear-gradient(135deg, rgba(30, 58, 138, 0.4) 0%, rgba(8, 51, 68, 0.3) 100%);
+  border: 1px solid rgba(59, 130, 246, 0.15);
+}
+
+/* Main content background */
+.main-content {
+  background: linear-gradient(135deg, #080b14 0%, #0a0e1c 50%, #06091a 100%);
+}
+
+/* Stat cards */
+.stat-card {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.04) 0%, rgba(255, 255, 255, 0.02) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(10px);
+  transition: all 0.2s ease;
+}
+
+.stat-card:hover {
+  border-color: rgba(255, 255, 255, 0.1);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+/* Refresh button */
+.refresh-btn {
+  background: linear-gradient(135deg, #1d4ed8 0%, #0284c7 100%);
+  color: white;
+  box-shadow: 0 2px 12px rgba(29, 78, 216, 0.35);
+  transition: all 0.2s ease;
+}
+
+.refresh-btn:hover {
+  box-shadow: 0 4px 20px rgba(29, 78, 216, 0.5);
+  transform: translateY(-1px);
+}
+
+/* Search input */
+.search-input {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  transition: all 0.2s ease;
+}
+
+.search-input:focus {
+  border-color: rgba(59, 130, 246, 0.4);
+  background: rgba(255, 255, 255, 0.06);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.08);
+  outline: none;
+}
+
+/* Tab group */
+.tab-group {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.tab-active {
+  background: linear-gradient(135deg, #1d4ed8 0%, #0284c7 100%);
+  box-shadow: 0 2px 8px rgba(29, 78, 216, 0.4);
+}
+
+/* Table */
+.table-container {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.table-header {
+  background: rgba(0, 0, 0, 0.3);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+/* Skill row */
+.skill-row {
+  background: rgba(255, 255, 255, 0.02);
+  transition: background 0.15s ease;
+}
+
+.skill-row:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+/* Install button */
+.install-btn {
+  background: linear-gradient(135deg, #1d4ed8 0%, #0284c7 100%);
+  color: white;
+  box-shadow: 0 2px 8px rgba(29, 78, 216, 0.3);
+  transition: all 0.2s ease;
+}
+
+.install-btn:hover {
+  box-shadow: 0 4px 14px rgba(29, 78, 216, 0.5);
+  transform: translateY(-1px);
+}
+
+.install-btn.installed {
+  background: rgba(16, 185, 129, 0.12);
+  color: #4ade80;
+  box-shadow: none;
+  border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.install-btn.installed:hover {
+  background: rgba(239, 68, 68, 0.12);
+  color: #f87171;
+  border-color: rgba(239, 68, 68, 0.2);
+  box-shadow: none;
+  transform: none;
+}
+
+/* Footer bar */
+.footer-bar {
+  background: linear-gradient(135deg, rgba(29, 78, 216, 0.12) 0%, rgba(2, 132, 199, 0.08) 100%);
+  border: 1px solid rgba(59, 130, 246, 0.12) !important;
+}
+
+/* Open folder button */
+.open-folder-btn {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(6, 182, 212, 0.1) 100%);
+  color: #60a5fa;
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  transition: all 0.2s ease;
+}
+
+.open-folder-btn:hover {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.25) 0%, rgba(6, 182, 212, 0.2) 100%);
+  box-shadow: 0 2px 12px rgba(59, 130, 246, 0.2);
 }
