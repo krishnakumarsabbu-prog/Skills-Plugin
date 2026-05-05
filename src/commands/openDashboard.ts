@@ -3,7 +3,7 @@ import * as vscode from 'vscode';
 interface SkillData {
   name: string;
   fileCount: number;
-  status: 'Not Installed';
+  status: 'Not Installed' | 'Installed';
 }
 
 async function countFilesRecursive(uri: vscode.Uri): Promise<number> {
@@ -36,6 +36,42 @@ async function loadSkills(extensionUri: vscode.Uri): Promise<SkillData[]> {
   return skills;
 }
 
+async function copyDirectoryRecursive(source: vscode.Uri, target: vscode.Uri): Promise<void> {
+  await vscode.workspace.fs.createDirectory(target);
+  const entries = await vscode.workspace.fs.readDirectory(source);
+  for (const [name, type] of entries) {
+    const srcChild = vscode.Uri.joinPath(source, name);
+    const tgtChild = vscode.Uri.joinPath(target, name);
+    if (type === vscode.FileType.Directory) {
+      await copyDirectoryRecursive(srcChild, tgtChild);
+    } else {
+      const content = await vscode.workspace.fs.readFile(srcChild);
+      await vscode.workspace.fs.writeFile(tgtChild, content);
+    }
+  }
+}
+
+async function installSkill(extensionUri: vscode.Uri, skillName: string): Promise<void> {
+  const workspaceFolders = vscode.workspace.workspaceFolders;
+  if (!workspaceFolders || workspaceFolders.length === 0) {
+    throw new Error('No workspace folder is open');
+  }
+
+  const workspaceUri = workspaceFolders[0].uri;
+  const githubUri = vscode.Uri.joinPath(workspaceUri, '.github');
+
+  try {
+    await vscode.workspace.fs.stat(githubUri);
+  } catch {
+    await vscode.workspace.fs.createDirectory(githubUri);
+  }
+
+  const sourceUri = vscode.Uri.joinPath(extensionUri, 'resources', '.github', 'skills', skillName);
+  const targetUri = vscode.Uri.joinPath(workspaceUri, '.github', 'skills', skillName);
+
+  await copyDirectoryRecursive(sourceUri, targetUri);
+}
+
 export function openDashboard(context: vscode.ExtensionContext): void {
   const panel = vscode.window.createWebviewPanel(
     'dctCopilotSkills',
@@ -57,6 +93,15 @@ export function openDashboard(context: vscode.ExtensionContext): void {
         panel.webview.postMessage({ command: 'skillsLoaded', skills });
       }).catch(() => {
         panel.webview.postMessage({ command: 'skillsError', message: 'Skills folder not found. Expected: resources/.github/skills/' });
+      });
+    } else if (message.command === 'installSkill') {
+      const skillName: string = message.skillName;
+      installSkill(context.extensionUri, skillName).then(() => {
+        panel.webview.postMessage({ command: 'skillInstalled', skillName });
+        vscode.window.showInformationMessage(`Skill "${skillName}" Installed Successfully`);
+      }).catch((err: Error) => {
+        panel.webview.postMessage({ command: 'skillInstallError', skillName, message: err.message });
+        vscode.window.showErrorMessage(`Failed to install skill "${skillName}": ${err.message}`);
       });
     }
   }, undefined, context.subscriptions);

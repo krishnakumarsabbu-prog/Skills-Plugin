@@ -4,11 +4,12 @@ import type { Skill } from './Dashboard';
 interface Props {
   skill: Skill;
   isInstalled: boolean;
+  isInstalling: boolean;
   isLast: boolean;
-  onToggle: (id: string) => void;
+  onInstall: (id: string) => void;
 }
 
-export default function SkillCard({ skill, isInstalled, isLast, onToggle }: Props) {
+export default function SkillCard({ skill, isInstalled, isInstalling, isLast, onInstall }: Props) {
   return (
     <div className={`skill-row grid grid-cols-[2fr_100px_130px_140px] gap-4 items-center px-5 py-4 transition-all duration-150 ${!isLast ? 'border-b border-white/[0.04]' : ''}`}>
       {/* Name */}
@@ -52,15 +53,23 @@ export default function SkillCard({ skill, isInstalled, isLast, onToggle }: Prop
       {/* Action */}
       <div className="flex items-center gap-2">
         <button
-          onClick={() => onToggle(skill.id)}
-          className={`install-btn flex items-center gap-2 px-4 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer border-none ${isInstalled ? 'installed' : ''}`}
+          onClick={() => onInstall(skill.id)}
+          disabled={isInstalling}
+          className={`install-btn flex items-center gap-2 px-4 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer border-none ${isInstalled ? 'installed' : ''} ${isInstalling ? 'opacity-60 cursor-not-allowed' : ''}`}
         >
-          {isInstalled ? (
+          {isInstalling ? (
             <>
-              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                <polyline points="20 6 9 17 4 12" />
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="animate-spin">
+                <path d="M21 12a9 9 0 1 1-6.219-8.56" />
               </svg>
-              Installed
+              Installing...
+            </>
+          ) : isInstalled ? (
+            <>
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" />
+              </svg>
+              Reinstall
             </>
           ) : (
             <>
@@ -80,3 +89,6 @@ export default function SkillCard({ skill, isInstalled, isLast, onToggle }: Prop
     </div>
   );
 }
+
+
+export default SkillCard

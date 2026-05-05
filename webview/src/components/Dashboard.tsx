@@ -6,7 +6,7 @@ export interface Skill {
   id: string;
   name: string;
   fileCount: number;
-  status: 'Not Installed';
+  status: 'Not Installed' | 'Installed';
 }
 
 type Tab = 'all' | 'installed' | 'not-installed';
@@ -14,6 +14,7 @@ type Tab = 'all' | 'installed' | 'not-installed';
 export default function Dashboard() {
   const [skills, setSkills] = useState<Skill[]>([]);
   const [installedSkills, setInstalledSkills] = useState<Set<string>>(new Set());
+  const [installingSkills, setInstallingSkills] = useState<Set<string>>(new Set());
   const [search, setSearch] = useState('');
   const [activeTab, setActiveTab] = useState<Tab>('all');
   const [loading, setLoading] = useState(true);
@@ -36,12 +37,26 @@ export default function Dashboard() {
       } else if (message.command === 'skillsError') {
         setError(message.message);
         setLoading(false);
+      } else if (message.command === 'skillInstalled') {
+        const skillName: string = message.skillName;
+        setInstalledSkills((prev) => new Set(prev).add(skillName));
+        setInstallingSkills((prev) => {
+          const next = new Set(prev);
+          next.delete(skillName);
+          return next;
+        });
+      } else if (message.command === 'skillInstallError') {
+        const skillName: string = message.skillName;
+        setInstallingSkills((prev) => {
+          const next = new Set(prev);
+          next.delete(skillName);
+          return next;
+        });
       }
     };
 
     window.addEventListener('message', handler);
 
-    // Request skills from extension
     vscode?.postMessage({ command: 'loadSkills' });
 
     return () => window.removeEventListener('message', handler);
@@ -61,13 +76,9 @@ export default function Dashboard() {
     return matchSearch && matchTab;
   });
 
-  const handleToggleInstall = (id: string) => {
-    setInstalledSkills((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
-    });
+  const handleInstall = (id: string) => {
+    setInstallingSkills((prev) => new Set(prev).add(id));
+    vscode?.postMessage({ command: 'installSkill', skillName: id });
   };
 
   const handleRefresh = () => {
@@ -223,8 +234,9 @@ export default function Dashboard() {
               key={skill.id}
               skill={skill}
               isInstalled={installedSkills.has(skill.id)}
+              isInstalling={installingSkills.has(skill.id)}
               isLast={i === filtered.length - 1}
-              onToggle={handleToggleInstall}
+              onInstall={handleInstall}
             />
           ))}
           {!loading && filtered.length === 0 && !error && (
