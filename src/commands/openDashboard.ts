@@ -20,6 +20,20 @@ async function countFilesRecursive(uri: vscode.Uri): Promise<number> {
   return count;
 }
 
+async function isSkillInstalled(skillName: string): Promise<boolean> {
+  const workspaceFolders = vscode.workspace.workspaceFolders;
+  if (!workspaceFolders || workspaceFolders.length === 0) {
+    return false;
+  }
+  const targetUri = vscode.Uri.joinPath(workspaceFolders[0].uri, '.github', 'skills', skillName);
+  try {
+    await vscode.workspace.fs.stat(targetUri);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 async function loadSkills(extensionUri: vscode.Uri): Promise<SkillData[]> {
   const skillsUri = vscode.Uri.joinPath(extensionUri, 'resources', '.github', 'skills');
   const entries = await vscode.workspace.fs.readDirectory(skillsUri);
@@ -29,7 +43,8 @@ async function loadSkills(extensionUri: vscode.Uri): Promise<SkillData[]> {
     if (type === vscode.FileType.Directory) {
       const folderUri = vscode.Uri.joinPath(skillsUri, name);
       const fileCount = await countFilesRecursive(folderUri);
-      skills.push({ name, fileCount, status: 'Not Installed' });
+      const installed = await isSkillInstalled(name);
+      skills.push({ name, fileCount, status: installed ? 'Installed' : 'Not Installed' });
     }
   }
 
@@ -97,7 +112,7 @@ export function openDashboard(context: vscode.ExtensionContext): void {
     } else if (message.command === 'installSkill') {
       const skillName: string = message.skillName;
       installSkill(context.extensionUri, skillName).then(() => {
-        panel.webview.postMessage({ command: 'skillInstalled', skillName });
+        panel.webview.postMessage({ command: 'skillInstalled', skillName, status: 'Installed' });
         vscode.window.showInformationMessage(`Skill "${skillName}" Installed Successfully`);
       }).catch((err: Error) => {
         panel.webview.postMessage({ command: 'skillInstallError', skillName, message: err.message });

@@ -13,7 +13,6 @@ type Tab = 'all' | 'installed' | 'not-installed';
 
 export default function Dashboard() {
   const [skills, setSkills] = useState<Skill[]>([]);
-  const [installedSkills, setInstalledSkills] = useState<Set<string>>(new Set());
   const [installingSkills, setInstallingSkills] = useState<Set<string>>(new Set());
   const [search, setSearch] = useState('');
   const [activeTab, setActiveTab] = useState<Tab>('all');
@@ -29,7 +28,7 @@ export default function Dashboard() {
             id: s.name,
             name: s.name,
             fileCount: s.fileCount,
-            status: s.status,
+            status: s.status as Skill['status'],
           }))
         );
         setLoading(false);
@@ -39,7 +38,9 @@ export default function Dashboard() {
         setLoading(false);
       } else if (message.command === 'skillInstalled') {
         const skillName: string = message.skillName;
-        setInstalledSkills((prev) => new Set(prev).add(skillName));
+        setSkills((prev) =>
+          prev.map((s) => (s.id === skillName ? { ...s, status: 'Installed' } : s))
+        );
         setInstallingSkills((prev) => {
           const next = new Set(prev);
           next.delete(skillName);
@@ -63,16 +64,15 @@ export default function Dashboard() {
   }, []);
 
   const totalSkills = skills.length;
-  const installedCount = installedSkills.size;
-  const notInstalledCount = totalSkills - installedCount;
+  const installedCount = skills.filter((s) => s.status === 'Installed').length;
+  const notInstalledCount = skills.filter((s) => s.status === 'Not Installed').length;
 
   const filtered = skills.filter((s) => {
     const matchSearch = !search || s.name.toLowerCase().includes(search.toLowerCase());
-    const isInstalled = installedSkills.has(s.id);
     const matchTab =
       activeTab === 'all' ||
-      (activeTab === 'installed' && isInstalled) ||
-      (activeTab === 'not-installed' && !isInstalled);
+      (activeTab === 'installed' && s.status === 'Installed') ||
+      (activeTab === 'not-installed' && s.status === 'Not Installed');
     return matchSearch && matchTab;
   });
 
@@ -233,7 +233,7 @@ export default function Dashboard() {
             <SkillCard
               key={skill.id}
               skill={skill}
-              isInstalled={installedSkills.has(skill.id)}
+              isInstalled={skill.status === 'Installed'}
               isInstalling={installingSkills.has(skill.id)}
               isLast={i === filtered.length - 1}
               onInstall={handleInstall}

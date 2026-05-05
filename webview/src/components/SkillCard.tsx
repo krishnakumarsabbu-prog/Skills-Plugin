@@ -90,5 +90,3 @@ export default function SkillCard({ skill, isInstalled, isInstalling, isLast, on
   );
 }
 
-
-export default SkillCard
