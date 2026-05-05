@@ -35,6 +35,33 @@ var __importStar = (this && this.__importStar) || (function () {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.openDashboard = openDashboard;
 const vscode = __importStar(require("vscode"));
+async function countFilesRecursive(uri) {
+    let count = 0;
+    const entries = await vscode.workspace.fs.readDirectory(uri);
+    for (const [name, type] of entries) {
+        if (type === vscode.FileType.File) {
+            count++;
+        }
+        else if (type === vscode.FileType.Directory) {
+            const subUri = vscode.Uri.joinPath(uri, name);
+            count += await countFilesRecursive(subUri);
+        }
+    }
+    return count;
+}
+async function loadSkills(extensionUri) {
+    const skillsUri = vscode.Uri.joinPath(extensionUri, 'resources', '.github', 'skills');
+    const entries = await vscode.workspace.fs.readDirectory(skillsUri);
+    const skills = [];
+    for (const [name, type] of entries) {
+        if (type === vscode.FileType.Directory) {
+            const folderUri = vscode.Uri.joinPath(skillsUri, name);
+            const fileCount = await countFilesRecursive(folderUri);
+            skills.push({ name, fileCount, status: 'Not Installed' });
+        }
+    }
+    return skills;
+}
 function openDashboard(context) {
     const panel = vscode.window.createWebviewPanel('dctCopilotSkills', 'DCT Copilot Skills', vscode.ViewColumn.One, {
         enableScripts: true,
@@ -44,8 +71,20 @@ function openDashboard(context) {
     });
     panel.webview.html = getWebviewContent(panel.webview, context.extensionUri);
     panel.webview.onDidReceiveMessage((message) => {
-        // handle messages from webview here
+        if (message.command === 'loadSkills') {
+            loadSkills(context.extensionUri).then((skills) => {
+                panel.webview.postMessage({ command: 'skillsLoaded', skills });
+            }).catch(() => {
+                panel.webview.postMessage({ command: 'skillsError', message: 'Skills folder not found. Expected: resources/.github/skills/' });
+            });
+        }
     }, undefined, context.subscriptions);
+    // Send skills immediately on panel open
+    loadSkills(context.extensionUri).then((skills) => {
+        panel.webview.postMessage({ command: 'skillsLoaded', skills });
+    }).catch(() => {
+        panel.webview.postMessage({ command: 'skillsError', message: 'Skills folder not found. Expected: resources/.github/skills/' });
+    });
 }
 function getWebviewContent(webview, extensionUri) {
     const webviewDist = vscode.Uri.joinPath(extensionUri, 'out', 'webview');

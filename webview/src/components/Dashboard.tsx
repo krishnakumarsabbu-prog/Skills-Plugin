@@ -1,141 +1,58 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import SkillCard from './SkillCard';
+import vscode from '../vscode';
 
 export interface Skill {
   id: string;
   name: string;
-  description: string;
-  shortDesc: string;
-  files: number;
-  category: string;
-  categoryColor: string;
-  badge?: 'Recommended' | 'Essential';
-  iconColor: string;
-  iconBg: string;
-  installed?: boolean;
+  fileCount: number;
+  status: 'Not Installed';
 }
-
-const skills: Skill[] = [
-  {
-    id: 'backend-architect',
-    name: 'Backend Architect',
-    description: 'Advanced prompts for system design, architecture patterns, and backend best practices.',
-    shortDesc: 'Design scalable backend systems with best practices',
-    files: 8,
-    category: 'Architecture',
-    categoryColor: 'bg-blue-900/40 text-blue-400',
-    badge: 'Recommended',
-    iconColor: '#60a5fa',
-    iconBg: 'bg-blue-900/60',
-    installed: false,
-  },
-  {
-    id: 'clean-code',
-    name: 'Clean Code',
-    description: 'Prompts focused on clean code principles, refactoring, and code quality improvement.',
-    shortDesc: 'Write clean, maintainable and efficient code',
-    files: 6,
-    category: 'Code Quality',
-    categoryColor: 'bg-emerald-900/40 text-emerald-400',
-    badge: 'Essential',
-    iconColor: '#4ade80',
-    iconBg: 'bg-emerald-900/60',
-    installed: true,
-  },
-  {
-    id: 'debugging-pro',
-    name: 'Debugging Pro',
-    description: 'Smart debugging prompts, error analysis, and troubleshooting strategies.',
-    shortDesc: 'Master debugging with systematic approach',
-    files: 7,
-    category: 'Development',
-    categoryColor: 'bg-red-900/40 text-red-400',
-    badge: 'Essential',
-    iconColor: '#f87171',
-    iconBg: 'bg-red-900/60',
-    installed: false,
-  },
-  {
-    id: 'api-builder',
-    name: 'API Builder',
-    description: 'RESTful API design, documentation, validation and testing prompts.',
-    shortDesc: 'Build robust APIs with best practices',
-    files: 5,
-    category: 'API',
-    categoryColor: 'bg-sky-900/40 text-sky-400',
-    iconColor: '#38bdf8',
-    iconBg: 'bg-sky-900/60',
-    installed: true,
-  },
-  {
-    id: 'security-guardian',
-    name: 'Security Guardian',
-    description: 'Security best practices, vulnerability scanning, and secure coding prompts.',
-    shortDesc: 'Secure your applications and protect against vulnerabilities',
-    files: 6,
-    category: 'Security',
-    categoryColor: 'bg-orange-900/40 text-orange-400',
-    iconColor: '#fb923c',
-    iconBg: 'bg-orange-900/60',
-    installed: false,
-  },
-  {
-    id: 'test-automation',
-    name: 'Test Automation',
-    description: 'Unit testing, integration testing, and automation framework prompts.',
-    shortDesc: 'Automated testing and quality assurance prompts',
-    files: 5,
-    category: 'Testing',
-    categoryColor: 'bg-pink-900/40 text-pink-400',
-    iconColor: '#e879f9',
-    iconBg: 'bg-pink-900/60',
-    installed: true,
-  },
-  {
-    id: 'ui-designer',
-    name: 'UI Designer',
-    description: 'Modern UI/UX design patterns, component structure, and accessibility prompts.',
-    shortDesc: 'Build stunning user interfaces with best practices',
-    files: 9,
-    category: 'Design',
-    categoryColor: 'bg-violet-900/40 text-violet-400',
-    iconColor: '#a78bfa',
-    iconBg: 'bg-violet-900/60',
-    installed: false,
-  },
-  {
-    id: 'devops-pro',
-    name: 'DevOps Pro',
-    description: 'CI/CD pipeline setup, containerization, and infrastructure automation prompts.',
-    shortDesc: 'Automate your deployment and infrastructure workflow',
-    files: 10,
-    category: 'DevOps',
-    categoryColor: 'bg-teal-900/40 text-teal-400',
-    iconColor: '#2dd4bf',
-    iconBg: 'bg-teal-900/60',
-    installed: false,
-  },
-];
 
 type Tab = 'all' | 'installed' | 'not-installed';
 
 export default function Dashboard() {
+  const [skills, setSkills] = useState<Skill[]>([]);
+  const [installedSkills, setInstalledSkills] = useState<Set<string>>(new Set());
   const [search, setSearch] = useState('');
   const [activeTab, setActiveTab] = useState<Tab>('all');
-  const [installedSkills, setInstalledSkills] = useState<Set<string>>(
-    new Set(skills.filter((s) => s.installed).map((s) => s.id))
-  );
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const handler = (event: MessageEvent) => {
+      const message = event.data;
+      if (message.command === 'skillsLoaded') {
+        setSkills(
+          message.skills.map((s: { name: string; fileCount: number; status: string }) => ({
+            id: s.name,
+            name: s.name,
+            fileCount: s.fileCount,
+            status: s.status,
+          }))
+        );
+        setLoading(false);
+        setError(null);
+      } else if (message.command === 'skillsError') {
+        setError(message.message);
+        setLoading(false);
+      }
+    };
+
+    window.addEventListener('message', handler);
+
+    // Request skills from extension
+    vscode?.postMessage({ command: 'loadSkills' });
+
+    return () => window.removeEventListener('message', handler);
+  }, []);
 
   const totalSkills = skills.length;
   const installedCount = installedSkills.size;
   const notInstalledCount = totalSkills - installedCount;
 
   const filtered = skills.filter((s) => {
-    const matchSearch =
-      !search ||
-      s.name.toLowerCase().includes(search.toLowerCase()) ||
-      s.description.toLowerCase().includes(search.toLowerCase()) ||
-      s.category.toLowerCase().includes(search.toLowerCase());
+    const matchSearch = !search || s.name.toLowerCase().includes(search.toLowerCase());
     const isInstalled = installedSkills.has(s.id);
     const matchTab =
       activeTab === 'all' ||
@@ -153,6 +70,12 @@ export default function Dashboard() {
     });
   };
 
+  const handleRefresh = () => {
+    setLoading(true);
+    setError(null);
+    vscode?.postMessage({ command: 'loadSkills' });
+  };
+
   return (
     <div className="flex flex-col h-full bg-transparent">
       {/* Top Header */}
@@ -166,9 +89,12 @@ export default function Dashboard() {
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#64748b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
             </svg>
-            <span className="text-[11px] text-slate-400 font-mono">~/.copilot-master/.github/skills</span>
+            <span className="text-[11px] text-slate-400 font-mono">resources/.github/skills</span>
           </div>
-          <button className="refresh-btn flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold transition-all cursor-pointer border-none">
+          <button
+            onClick={handleRefresh}
+            className="refresh-btn flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold transition-all cursor-pointer border-none"
+          >
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <polyline points="23 4 23 10 17 10" /><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" />
             </svg>
@@ -176,6 +102,16 @@ export default function Dashboard() {
           </button>
         </div>
       </div>
+
+      {/* Error Banner */}
+      {error && (
+        <div className="mx-8 mt-4 flex items-center gap-3 px-4 py-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0">
+            <circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" />
+          </svg>
+          <span>{error}</span>
+        </div>
+      )}
 
       {/* Stats Row */}
       <div className="grid grid-cols-4 gap-4 px-8 py-5">
@@ -186,7 +122,7 @@ export default function Dashboard() {
             </svg>
           </div>
           <div>
-            <div className="text-2xl font-bold text-white">{totalSkills}</div>
+            <div className="text-2xl font-bold text-white">{loading ? '—' : totalSkills}</div>
             <div className="text-[11px] text-slate-500 mt-0.5">Total Skills</div>
           </div>
         </div>
@@ -198,7 +134,7 @@ export default function Dashboard() {
             </svg>
           </div>
           <div>
-            <div className="text-2xl font-bold text-white">{installedCount}</div>
+            <div className="text-2xl font-bold text-white">{loading ? '—' : installedCount}</div>
             <div className="text-[11px] text-slate-500 mt-0.5">Installed</div>
           </div>
         </div>
@@ -210,7 +146,7 @@ export default function Dashboard() {
             </svg>
           </div>
           <div>
-            <div className="text-2xl font-bold text-white">{notInstalledCount}</div>
+            <div className="text-2xl font-bold text-white">{loading ? '—' : notInstalledCount}</div>
             <div className="text-[11px] text-slate-500 mt-0.5">Not Installed</div>
           </div>
         </div>
@@ -236,7 +172,7 @@ export default function Dashboard() {
           </svg>
           <input
             type="text"
-            placeholder="Search skills by name, description or tags..."
+            placeholder="Search skills by name..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="search-input w-full pl-10 pr-4 py-2.5 rounded-xl text-sm text-slate-200 placeholder-slate-600 outline-none"
@@ -262,16 +198,27 @@ export default function Dashboard() {
       <div className="flex-1 overflow-auto px-8 pb-4">
         <div className="table-container rounded-2xl overflow-hidden">
           {/* Table Header */}
-          <div className="table-header grid grid-cols-[2fr_3fr_100px_130px_140px] gap-4 px-5 py-3">
+          <div className="table-header grid grid-cols-[2fr_100px_130px_140px] gap-4 px-5 py-3">
             <div className="text-[10px] font-bold text-slate-600 tracking-widest uppercase">Skill Name</div>
-            <div className="text-[10px] font-bold text-slate-600 tracking-widest uppercase">Description</div>
             <div className="text-[10px] font-bold text-slate-600 tracking-widest uppercase">Files</div>
             <div className="text-[10px] font-bold text-slate-600 tracking-widest uppercase">Status</div>
             <div className="text-[10px] font-bold text-slate-600 tracking-widest uppercase">Action</div>
           </div>
 
+          {/* Loading State */}
+          {loading && (
+            <div className="py-16 text-center">
+              <div className="inline-flex items-center gap-2 text-slate-500 text-sm">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="animate-spin">
+                  <path d="M21 12a9 9 0 1 1-6.219-8.56" />
+                </svg>
+                Loading skills...
+              </div>
+            </div>
+          )}
+
           {/* Rows */}
-          {filtered.map((skill, i) => (
+          {!loading && filtered.map((skill, i) => (
             <SkillCard
               key={skill.id}
               skill={skill}
@@ -280,8 +227,10 @@ export default function Dashboard() {
               onToggle={handleToggleInstall}
             />
           ))}
-          {filtered.length === 0 && (
-            <div className="py-16 text-center text-slate-600 text-sm">No skills match your search.</div>
+          {!loading && filtered.length === 0 && !error && (
+            <div className="py-16 text-center text-slate-600 text-sm">
+              {skills.length === 0 ? 'No skills found in resources/.github/skills/' : 'No skills match your search.'}
+            </div>
           )}
         </div>
       </div>
