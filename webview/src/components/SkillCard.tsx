@@ -64,38 +64,42 @@ export default function SkillCard({ skill, isInstalled, isInstalling, isLast, ro
 
   return (
     <div
-      className={`skill-row grid grid-cols-[2fr_100px_130px_140px] gap-4 items-center px-5 py-4 ${!isLast ? 'border-b border-white/[0.04]' : ''}`}
+      className={`skill-row grid grid-cols-[2fr_100px_130px_140px] gap-4 items-center px-5 py-4 ${!isLast ? 'border-b' : ''}`}
       style={{
         opacity: visible ? 1 : 0,
         transform: visible ? 'translateY(0)' : 'translateY(10px)',
         transition: `opacity 0.4s ease ${rowIndex * 50}ms, transform 0.4s ease ${rowIndex * 50}ms`,
+        borderColor: !isLast ? 'var(--border-skill)' : undefined,
       }}
     >
       {/* Name */}
       <div className="flex items-center gap-3 min-w-0">
-        <div className="skill-icon w-11 h-11 rounded-xl bg-blue-900/60 flex items-center justify-center shrink-0 border border-white/10 transition-all duration-300">
+        <div className="skill-icon w-11 h-11 rounded-xl flex items-center justify-center shrink-0 transition-all duration-300"
+          style={{ background: 'rgba(59,130,246,0.1)', border: '1px solid rgba(59,130,246,0.2)' }}>
           <CodeIcon />
         </div>
         <div className="min-w-0">
-          <span className="font-semibold text-white text-sm block truncate">{skill.name}</span>
-          <span className="text-[11px] text-slate-500 mt-0.5 block truncate font-mono">{skill.name}</span>
+          <span className="font-semibold text-sm block truncate" style={{ color: 'var(--text-primary)' }}>{skill.name}</span>
+          <span className="text-[11px] mt-0.5 block truncate font-mono" style={{ color: 'var(--text-faint)' }}>{skill.name}</span>
         </div>
       </div>
 
       {/* Files */}
-      <div className="flex items-center gap-1.5 text-xs text-slate-500">
+      <div className="flex items-center gap-1.5 text-xs" style={{ color: 'var(--text-faint)' }}>
         <FolderIcon />
         <span>{skill.fileCount} files</span>
       </div>
 
       {/* Status */}
       {isInstalled ? (
-        <span className="status-badge installed inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 w-fit">
+        <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1 rounded-lg w-fit"
+          style={{ background: 'rgba(16,185,129,0.1)', color: '#16a34a', border: '1px solid rgba(16,185,129,0.25)' }}>
           <CheckIcon />
           Installed
         </span>
       ) : (
-        <span className="status-badge inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1 rounded-lg bg-slate-500/10 text-slate-500 border border-slate-500/20 w-fit">
+        <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1 rounded-lg w-fit"
+          style={{ background: 'rgba(100,116,139,0.1)', color: 'var(--text-faint)', border: '1px solid rgba(100,116,139,0.2)' }}>
           <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <circle cx="12" cy="12" r="4" />
           </svg>
@@ -122,7 +126,7 @@ export default function SkillCard({ skill, isInstalled, isInstalling, isLast, ro
             <><DownloadIcon />Install</>
           )}
         </button>
-        <button className="more-btn w-7 h-7 flex items-center justify-center rounded-lg text-slate-600 hover:text-slate-300 transition-all border-none cursor-pointer bg-transparent">
+        <button className="more-btn w-7 h-7 flex items-center justify-center rounded-lg transition-all border-none cursor-pointer bg-transparent" style={{ color: 'var(--text-faint)' }}>
           <MoreIcon />
         </button>
       </div>

@@ -38,10 +38,10 @@ const EmptyState = ({ hasSkills }: { hasSkills: boolean }) => (
       </div>
     </div>
     <div className="text-center">
-      <div className="text-base font-semibold text-white mb-1">
+      <div className="text-base font-semibold mb-1" style={{ color: 'var(--text-primary)' }}>
         {hasSkills ? 'No matching skills' : 'No skills found'}
       </div>
-      <div className="text-sm text-slate-500 max-w-[260px] leading-relaxed">
+      <div className="text-sm max-w-[260px] leading-relaxed" style={{ color: 'var(--text-faint)' }}>
         {hasSkills
           ? 'Try adjusting your search or filter to find what you\'re looking for.'
           : 'No skills found in resources/.github/skills/ — check that your skills directory is set up correctly.'}
@@ -235,17 +235,17 @@ export default function Dashboard() {
   return (
     <div className="flex flex-col h-full bg-transparent">
       {/* Top Header */}
-      <div className="flex items-start justify-between px-8 pt-7 pb-5 border-b border-white/5">
+      <div className="flex items-start justify-between px-8 pt-7 pb-5 header-border">
         <div>
-          <h1 className="text-2xl font-bold text-white tracking-tight">Skill Dashboard</h1>
-          <p className="text-xs text-slate-500 mt-1">Browse and install powerful Copilot skills into your workspace</p>
+          <h1 className="text-2xl font-bold tracking-tight" style={{ color: 'var(--text-primary)' }}>Skill Dashboard</h1>
+          <p className="text-xs mt-1" style={{ color: 'var(--text-faint)' }}>Browse and install powerful Copilot skills into your workspace</p>
         </div>
         <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2 px-3 py-2 rounded-lg glass-card border border-white/5">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#64748b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <div className="flex items-center gap-2 px-3 py-2 rounded-lg glass-card source-card">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ color: 'var(--text-faint)' }}>
               <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
             </svg>
-            <span className="text-[11px] text-slate-400 font-mono">resources/.github/skills</span>
+            <span className="text-[11px] font-mono" style={{ color: 'var(--text-muted)' }}>resources/.github/skills</span>
           </div>
           <button
             onClick={handleRefresh}
@@ -287,8 +287,8 @@ export default function Dashboard() {
               {card.icon}
             </div>
             <div>
-              <div className={`font-bold text-white ${card.isText ? 'text-sm' : 'text-2xl'}`}>{card.value}</div>
-              <div className="text-[11px] text-slate-500 mt-0.5">{card.label}</div>
+              <div className={`font-bold ${card.isText ? 'text-sm' : 'text-2xl'}`} style={{ color: 'var(--text-primary)' }}>{card.value}</div>
+              <div className="text-[11px] mt-0.5" style={{ color: 'var(--text-faint)' }}>{card.label}</div>
             </div>
           </div>
         ))}
@@ -329,10 +329,10 @@ export default function Dashboard() {
         <div className="table-container rounded-2xl overflow-hidden">
           {/* Table Header */}
           <div className="table-header grid grid-cols-[2fr_100px_130px_140px] gap-4 px-5 py-3">
-            <div className="text-[10px] font-bold text-slate-600 tracking-widest uppercase">Skill Name</div>
-            <div className="text-[10px] font-bold text-slate-600 tracking-widest uppercase">Files</div>
-            <div className="text-[10px] font-bold text-slate-600 tracking-widest uppercase">Status</div>
-            <div className="text-[10px] font-bold text-slate-600 tracking-widest uppercase">Action</div>
+            <div className="text-[10px] font-bold tracking-widest uppercase table-col-label">Skill Name</div>
+            <div className="text-[10px] font-bold tracking-widest uppercase table-col-label">Files</div>
+            <div className="text-[10px] font-bold tracking-widest uppercase table-col-label">Status</div>
+            <div className="text-[10px] font-bold tracking-widest uppercase table-col-label">Action</div>
           </div>
 
           {/* Loading State */}
@@ -359,25 +359,25 @@ export default function Dashboard() {
       </div>
 
       {/* Footer Bar */}
-      <div className="mx-8 mb-6 flex items-center justify-between px-5 py-4 rounded-2xl footer-bar border border-blue-500/10">
+      <div className="mx-8 mb-6 flex items-center justify-between px-5 py-4 rounded-2xl footer-bar">
         <div className="flex items-center gap-3">
-          <div className="text-yellow-400 shrink-0">
+          <div className="text-yellow-500 shrink-0">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
               <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
             </svg>
           </div>
           <div>
-            <div className="text-sm font-semibold text-white">
+            <div className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>
               Install any skill with one click and supercharge your Copilot experience!
             </div>
-            <div className="text-xs text-slate-500 mt-0.5">
+            <div className="text-xs mt-0.5" style={{ color: 'var(--text-faint)' }}>
               Skills will be copied to your workspace{' '}
-              <span className="font-mono text-slate-400">.github/skills/</span> directory
+              <span className="font-mono" style={{ color: 'var(--text-muted)' }}>.github/skills/</span> directory
             </div>
           </div>
         </div>
         <div className="flex items-center gap-3 ml-4 shrink-0">
-          <div className="flex items-center gap-1.5 text-xs text-slate-500 font-mono">
+          <div className="flex items-center gap-1.5 text-xs font-mono" style={{ color: 'var(--text-faint)' }}>
             <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
             </svg>
